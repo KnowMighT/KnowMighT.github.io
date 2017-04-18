@@ -91,12 +91,12 @@
 <meta name="keywords" content="iOS,runtime">
 <meta property="og:type" content="article">
 <meta property="og:title" content="iOS runtime 官方文档解析">
-<meta property="og:url" content="https://knowmight.github.io/2017/04/18/iOS runtime 官方文档解析/index.html">
+<meta property="og:url" content="https://knowmight.github.io/2017/02/20/iOS runtime 官方文档解析/index.html">
 <meta property="og:site_name" content="TruthSeeker">
 <meta property="og:description" content="在 iOS 开发中，runtime时常作为Objective-C这门语言底层的代名词，代表着复杂和难懂，但同时充满着黑魔法的吸引力。事实上，runtime的确有这些特性，runtime内容很多，作用也很多，可能很难说清楚。但是作为一名合格的程序员，应该要去试着弄清楚runtime这一底层机制。今天，我也试着谈谈自己对runtime的理解。 本文并不会谈runtime的实际使用场景，而是以苹果的官方">
 <meta property="og:image" content="http://upload-images.jianshu.io/upload_images/1554569-59a34c98bc648ffd.gif?imageMogr2/auto-orient/strip">
 <meta property="og:image" content="http://upload-images.jianshu.io/upload_images/1554569-4015024cde934b3d.gif?imageMogr2/auto-orient/strip">
-<meta property="og:updated_time" content="2017-04-18T07:11:53.000Z">
+<meta property="og:updated_time" content="2017-04-18T07:38:11.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="iOS runtime 官方文档解析">
 <meta name="twitter:description" content="在 iOS 开发中，runtime时常作为Objective-C这门语言底层的代名词，代表着复杂和难懂，但同时充满着黑魔法的吸引力。事实上，runtime的确有这些特性，runtime内容很多，作用也很多，可能很难说清楚。但是作为一名合格的程序员，应该要去试着弄清楚runtime这一底层机制。今天，我也试着谈谈自己对runtime的理解。 本文并不会谈runtime的实际使用场景，而是以苹果的官方">
@@ -128,7 +128,7 @@
 
 
 
-  <link rel="canonical" href="https://knowmight.github.io/2017/04/18/iOS runtime 官方文档解析/"/>
+  <link rel="canonical" href="https://knowmight.github.io/2017/02/20/iOS runtime 官方文档解析/"/>
 
 
 
@@ -293,7 +293,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="https://knowmight.github.io/2017/04/18/iOS runtime 官方文档解析/">
+    <link itemprop="mainEntityOfPage" href="https://knowmight.github.io/2017/02/20/iOS runtime 官方文档解析/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Will Goh">
@@ -329,8 +329,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-04-18T13:55:52+08:00">
-                2017-04-18
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-02-20T20:54:52+08:00">
+                2017-02-20
               </time>
             
 
@@ -366,7 +366,7 @@
 
       
         <p>在 iOS 开发中，<code>runtime</code>时常作为<code>Objective-C</code>这门语言底层的代名词，代表着复杂和难懂，但同时充满着黑魔法的吸引力。事实上，<code>runtime</code>的确有这些特性，<code>runtime</code>内容很多，作用也很多，可能很难说清楚。但是作为一名合格的程序员，应该要去试着弄清楚<code>runtime</code>这一底层机制。今天，我也试着谈谈自己对<code>runtime</code>的理解。</p>
-<p>本文并不会谈<code>runtime</code>的实际使用场景，而是以苹果的官方文档为基准对其原理进行分析，毕竟，人家是官方嘛~ 下面引用了苹果官方文档对<code>runtime</code>的总体介绍，我们便从此处开始谈起：</p>
+<p>本文并不会谈<code>runtime</code>的实际使用场景，而是以苹果的官方文档为基准对其原理进行分析，毕竟，人家是官方嘛~ 下面引用了苹果官方文档对<code>runtime</code>的总体介绍，我们便从此处开始谈起：<br><a id="more"></a></p>
 <blockquote>
 <p>The Objective-C language defers as many decisions as it can from compile time and link time to runtime. Whenever possible, it does things dynamically. This means that the language requires not just a compiler, but also a runtime system to execute the compiled code. The runtime system acts as a kind of operating system for the Objective-C language; it’s what makes the language work.</p>
 </blockquote>

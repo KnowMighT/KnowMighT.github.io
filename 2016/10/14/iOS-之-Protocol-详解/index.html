@@ -94,7 +94,7 @@
 <meta property="og:url" content="https://knowmight.github.io/2016/10/14/iOS-之-Protocol-详解/index.html">
 <meta property="og:site_name" content="TruthSeeker">
 <meta property="og:description" content="在iOS开发中，Protocol是一种经常用到的设计模式，苹果的系统框架中也普遍用到了这种方式，比如UITableView中的&amp;lt;UITableViewDelegate&amp;gt;，以及&amp;lt;NSCopying&amp;gt;、&amp;lt;NSObject&amp;gt;这样的协议。我想大家也都自定义过协议，一般都用于回调，或者数据传递。不过，用久了以后，不知道大家是否会有一些困惑：协议只能用于委托代理吗？为什么系">
-<meta property="og:updated_time" content="2017-04-18T06:07:57.000Z">
+<meta property="og:updated_time" content="2017-04-18T07:36:09.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="iOS 之 Protocol 详解">
 <meta name="twitter:description" content="在iOS开发中，Protocol是一种经常用到的设计模式，苹果的系统框架中也普遍用到了这种方式，比如UITableView中的&amp;lt;UITableViewDelegate&amp;gt;，以及&amp;lt;NSCopying&amp;gt;、&amp;lt;NSObject&amp;gt;这样的协议。我想大家也都自定义过协议，一般都用于回调，或者数据传递。不过，用久了以后，不知道大家是否会有一些困惑：协议只能用于委托代理吗？为什么系">
@@ -394,28 +394,29 @@
 <li><code>protocol</code>分类：正式协议和非正式协议？</li>
 <li><code>protocol</code>有哪些作用，能用在哪些地方?</li>
 </ul>
+<a id="more"></a>
 <hr>
-<h3 id="1-protocol-是什么"><a href="#1-protocol-是什么" class="headerlink" title="1. protocol 是什么?"></a>1. protocol 是什么?</h3><p>iOS 开发文档是这样定义的：(翻译略渣，请见谅)</p>
+<h2 id="protocol-是什么"><a href="#protocol-是什么" class="headerlink" title="protocol 是什么?"></a>protocol 是什么?</h2><p>iOS 开发文档是这样定义的：(翻译略渣，请见谅)</p>
 <blockquote>
 <p>A protocol declares a programmatic interface that any class may choose to implement. Protocols make it possible for two classes distantly related by inheritance to communicate with each other to accomplish a certain goal. They thus offer an alternative to subclassing. Any class that can provide behavior useful to other classes may declare a programmatic interface for vending that behavior anonymously. Any other class may choose to adopt the protocol and implement one or more of its methods, thereby making use of the behavior. The class that declares a protocol is expected to call the methods in the protocol if they are implemented by the protocol adopter.</p>
 </blockquote>
 <p>协议声明了任何类都能够选择实现的程序接口。协议能够使两个不同继承树上的类相互交流并完成特定的目的，因此它提供了除继承外的另一种选择。任何能够为其他类提供有用行为的类都能够声明接口来匿名的传达这个行为。任何其他类都能够选择遵守这个协议并实现其中的一个或多个方法，从而利用这个行为。如果协议遵守者实现了协议中的方法，那么声明协议的类就能够通过遵守者调用协议中的方法。</p>
-<h3 id="2-protocol-里有些啥"><a href="#2-protocol-里有些啥" class="headerlink" title="2. protocol 里有些啥?"></a>2. protocol 里有些啥?</h3><p>协议中能够声明方法，以及属性。然后问题就来了，不是不能定义成员变量的吗？</p>
+<h2 id="protocol-里有些啥"><a href="#protocol-里有些啥" class="headerlink" title="protocol 里有些啥?"></a>protocol 里有些啥?</h2><p>协议中能够声明方法，以及属性。然后问题就来了，不是不能定义成员变量的吗？</p>
 <p><strong>对，的确不能定义成员变量</strong>，但是属性是什么？属性包含了三个东西：成员变量、<code>setter</code>方法、<code>getter</code>方法。在类中定义的属性，当然三者都有，然而协议中定义的属性只有获取和设置方法，没有成员变量，这就要求该协议的遵守者必须自己写出<code>setter</code>和<code>getter</code>方法的实现。但是有一种情况是不需要的，那就是遵守者本来就有这个属性，此时系统会为这个属性自动生成设置获取方法，既然已经实现了，那么遵守者就没必要去实现协议中的这个属性了。</p>
 <p>尽管可以实现“伪属性”，但是，<strong>我们还是应该尽量把属性定义在主接口中，而不应该定义在协议中</strong>。</p>
 <p>还有一点，也是很重要的一点，为什么自定义的协议后面会有这么一个东西<code>&lt;NSObject&gt;</code>?</p>
 <p>协议也能继承。既可以继承自自定义的协议，也可以继承自系统的协议。<br>我们在定义协议的时候，一般都是直接继承自<code>&lt;NSObject&gt;</code>，为什么系统要默认让协议继承自这个协议呢？</p>
 <p>因为这个协议中定义了一些基本的方法，由于我们使用的所有类都继承<code>NSObject</code>这个基类，而这个基类遵守了<code>&lt;NSObject&gt;</code>这个协议，那么也就实现了其中的那些方法，这些方法当然可以由<code>NSObject</code>及其子类对象调用，但是在不知道遵守者类型的时候需要用到<code>id &lt;协议名&gt;</code>这样的指针，这个指针在编译期并不知道自己指向哪个对象，唯一能调用的便是协议中的方法，然而有时候又需要用一些基本的方法，比如要辨别<code>id &lt;协议名&gt;</code>这个指针所指的对象属于哪个类，就要用到<code>-isMemberOf:</code>这个方法，而这个方法是<code>&lt;NSObject&gt;</code>这个协议中的方法之一，所以，我们自定义的协议都需要继承<code>&lt;NSObject&gt;</code>。本段一开始便说道:<code>&lt;NSObject&gt;</code>中的方法在<code>NSObject</code>基类中实现了，那么无需再关心实现了，直接调用<code>&lt;NSObject&gt;</code>中的方法吧。</p>
-<h3 id="3-protocol-可以写在哪？"><a href="#3-protocol-可以写在哪？" class="headerlink" title="3. protocol 可以写在哪？"></a>3. protocol 可以写在哪？</h3><p>写在头文件中，写在实现文件的类扩展中。</p>
+<h2 id="protocol-可以写在哪？"><a href="#protocol-可以写在哪？" class="headerlink" title="protocol 可以写在哪？"></a>protocol 可以写在哪？</h2><p>写在头文件中，写在实现文件的类扩展中。</p>
 <p>前者：可以当做是给这个类添加了一些外部接口。<br>后者：可以当做是给这个类添加了一些私有接口。</p>
 <ul>
 <li>写在头文件中，类内部自然能通过<code>self</code>调用，外部也可以调用里面的方法，子类可以实现或者重写里面的方法。</li>
 <li>而在类扩展中，内部可以调用，外部不能调用、子类不能重写实现和重写，相当于是私有方法。</li>
 </ul>
 <p>不过，如果子类自身又遵循了这个协议，但并没有实现，那么在运行时，系统会一级级往上查找，直到找到父类的方法实现。也就是说，只要知道苹果的私有方法名，并且确保自己的类是这个私有方法所属类的子类，就可以在子类中通过只声明不实现的方式执行父类中该私有方法的实现。</p>
-<h3 id="4-protocol-里的方法由谁实现，由谁调用"><a href="#4-protocol-里的方法由谁实现，由谁调用" class="headerlink" title="4. protocol 里的方法由谁实现，由谁调用"></a>4. protocol 里的方法由谁实现，由谁调用</h3><p>实现：遵守协议者及其子类</p>
+<h2 id="protocol-里的方法由谁实现，由谁调用"><a href="#protocol-里的方法由谁实现，由谁调用" class="headerlink" title="protocol 里的方法由谁实现，由谁调用"></a>protocol 里的方法由谁实现，由谁调用</h2><p>实现：遵守协议者及其子类</p>
 <p>调用：遵守协议者、其子类、<code>id &lt;协议名&gt;</code></p>
-<h3 id="5-protocol-的分类：正式协议-和-非正式协议（类别）"><a href="#5-protocol-的分类：正式协议-和-非正式协议（类别）" class="headerlink" title="5. protocol 的分类：正式协议 和 非正式协议（类别）"></a>5. protocol 的分类：正式协议 和 非正式协议（类别）</h3><p>iOS  文档是这样定义的:</p>
+<h2 id="protocol-的分类：正式协议-和-非正式协议（类别）"><a href="#protocol-的分类：正式协议-和-非正式协议（类别）" class="headerlink" title="protocol 的分类：正式协议 和 非正式协议（类别）"></a>protocol 的分类：正式协议 和 非正式协议（类别）</h2><p>iOS  文档是这样定义的:</p>
 <blockquote>
 <p>There are two varieties of protocol, formal and informal:</p>
 <p>A formal protocol declares a list of methods that client classes are expected to implement. Formal protocols have their own declaration, adoption, and type-checking syntax. You can designate methods whose implementation is required or optional with the @required and @optional keywords. Subclasses inherit formal protocols adopted by their ancestors. A formal protocol can also adopt other protocols. Formal protocols are an extension to the Objective-C language.</p>
@@ -431,13 +432,13 @@
 <p>但是为什么系统框架中使用了这么多的类目呢？设计者当初为什么不把类目中的方法写到主接口中？</p>
 <p>原因在于<strong>要将众多的方法打散到各处，要将同一类型功能的接口都封装在一个类目中</strong>。这样做能够减少主接口中的代码量，也便于调试。我们还可以把类中的私有方法全部封装在名为<code>Private</code>的类目中，然后在实现文件中引入这个类目，这样做可以把共有的方法定义在一个类目中，也很容易能够清楚哪些是私有方法。</p>
 <p>协议，尤其是类目，<strong>一定要给类目的名称和方法名添加自己的特有前缀</strong>，这样做既不会和系统的类目冲突，也不会在将自己的代码开源后和其他使用者的类目冲突。</p>
-<h3 id="6-protocol-有哪些作用，用在哪些地方"><a href="#6-protocol-有哪些作用，用在哪些地方" class="headerlink" title="6. protocol 有哪些作用，用在哪些地方"></a>6. protocol 有哪些作用，用在哪些地方</h3><ul>
+<h2 id="protocol-有哪些作用，用在哪些地方"><a href="#protocol-有哪些作用，用在哪些地方" class="headerlink" title="protocol 有哪些作用，用在哪些地方"></a>protocol 有哪些作用，用在哪些地方</h2><ul>
 <li><p>某一个类需要委托其他类处理某些事件，最具代表性性的便是<code>UITableView</code>的那些代理方法。这些方法其实还是代理的方法，只不过定义的地方可能会在委托者类中，通过调用这些方法，可以：将委托者中的数据传递给代理；将代理的数据传递给委托者；将委托者的事件抛给代理去处理… </p>
 </li>
 <li><p>给某几个特定的类添加统一的接口，这些接口是从这些类中抽象出的共同的行为，这样便可以减少重复的代码。</p>
 </li>
 </ul>
-<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p><strong>协议就是定义公共接口的地方</strong>，只要遵守协议，就等于在头文件中定义了这些方法，只要实现就行了。之所以有这样的设计，是因为要将共同的行为抽象出来：不同的类有不同的作用和特征，这也是面向对象的特点，但是即使千差万别，还是会有某些相似点的，这些相似的地方就可以抽象出来做成协议。但有时候这些共同的部分并不是本身就有的，而是人为的添加的，我们要求这些类具有共同的部分，而不管这些类是多么千差万别。有人会问，为什么不写一个公共的父类呢？子类继承父类，这样就能共有某些方法了？</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p><strong>协议就是定义公共接口的地方</strong>，只要遵守协议，就等于在头文件中定义了这些方法，只要实现就行了。之所以有这样的设计，是因为要将共同的行为抽象出来：不同的类有不同的作用和特征，这也是面向对象的特点，但是即使千差万别，还是会有某些相似点的，这些相似的地方就可以抽象出来做成协议。但有时候这些共同的部分并不是本身就有的，而是人为的添加的，我们要求这些类具有共同的部分，而不管这些类是多么千差万别。有人会问，为什么不写一个公共的父类呢？子类继承父类，这样就能共有某些方法了？</p>
 <p>当然是有这样的设计的，<code>Foundation</code>框架下类的设计就是这样一层一层写下去的，最具相同性的属性和方法声明的位置绝对更靠前。但是，如果同时需要遵守协议的是来自两个不同继承树上的类呢？难道是找到它们共有的祖先类，然后把方法写在那里面吗？显然这么做是不行的，因为这样会导致两个继承树下的所有子类都可以调用，然而并不是所有子类都需要这些方法，所以还是得要用协议。</p>
 <p>很多人会看到有一个<code>&lt;NSObject&gt;</code>的协议，这个协议和<code>NSObject</code>这个类同名，由<code>NSObject</code>遵守，为什么不把这些方法直接写到<code>NSObject</code>类中呢？因为<code>cocoa</code>框架中的基类不止<code>NSObject</code>一个，还有<code>NSProxy</code>这样的类存在，那么<code>&lt;NSObject&gt;</code>这个协议就很容易明白了，它抽象出了所有基类都需要的方法，为基类提供共有方法。还有一个原因的话，在上文中已经说明了，自定义的类要继承自这个协议，以供匿名对象<code>id&lt;协议名&gt;</code>使用。</p>
 
@@ -484,7 +485,7 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2017/04/18/iOS runtime 官方文档解析/" rel="next" title="iOS runtime 官方文档解析">
+              <a href="/2017/02/20/iOS runtime 官方文档解析/" rel="next" title="iOS runtime 官方文档解析">
                 <i class="fa fa-chevron-left"></i> iOS runtime 官方文档解析
               </a>
             
@@ -621,7 +622,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-protocol-是什么"><span class="nav-number">1.</span> <span class="nav-text">1. protocol 是什么?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-protocol-里有些啥"><span class="nav-number">2.</span> <span class="nav-text">2. protocol 里有些啥?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-protocol-可以写在哪？"><span class="nav-number">3.</span> <span class="nav-text">3. protocol 可以写在哪？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-protocol-里的方法由谁实现，由谁调用"><span class="nav-number">4.</span> <span class="nav-text">4. protocol 里的方法由谁实现，由谁调用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-protocol-的分类：正式协议-和-非正式协议（类别）"><span class="nav-number">5.</span> <span class="nav-text">5. protocol 的分类：正式协议 和 非正式协议（类别）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-protocol-有哪些作用，用在哪些地方"><span class="nav-number">6.</span> <span class="nav-text">6. protocol 有哪些作用，用在哪些地方</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number"></span> <span class="nav-text">总结</span></a></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#protocol-是什么"><span class="nav-number">1.</span> <span class="nav-text">protocol 是什么?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#protocol-里有些啥"><span class="nav-number">2.</span> <span class="nav-text">protocol 里有些啥?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#protocol-可以写在哪？"><span class="nav-number">3.</span> <span class="nav-text">protocol 可以写在哪？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#protocol-里的方法由谁实现，由谁调用"><span class="nav-number">4.</span> <span class="nav-text">protocol 里的方法由谁实现，由谁调用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#protocol-的分类：正式协议-和-非正式协议（类别）"><span class="nav-number">5.</span> <span class="nav-text">protocol 的分类：正式协议 和 非正式协议（类别）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#protocol-有哪些作用，用在哪些地方"><span class="nav-number">6.</span> <span class="nav-text">protocol 有哪些作用，用在哪些地方</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">7.</span> <span class="nav-text">总结</span></a></li></ol></div>
             
 
           </div>
