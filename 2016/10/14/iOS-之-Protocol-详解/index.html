@@ -1,0 +1,808 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="iOS,Protocol," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="在iOS开发中，Protocol是一种经常用到的设计模式，苹果的系统框架中也普遍用到了这种方式，比如UITableView中的&amp;lt;UITableViewDelegate&amp;gt;，以及&amp;lt;NSCopying&amp;gt;、&amp;lt;NSObject&amp;gt;这样的协议。我想大家也都自定义过协议，一般都用于回调，或者数据传递。不过，用久了以后，不知道大家是否会有一些困惑：协议只能用于委托代理吗？为什么系">
+<meta name="keywords" content="iOS,Protocol">
+<meta property="og:type" content="article">
+<meta property="og:title" content="iOS 之 Protocol 详解">
+<meta property="og:url" content="https://knowmight.github.io/2016/10/14/iOS-之-Protocol-详解/index.html">
+<meta property="og:site_name" content="TruthSeeker">
+<meta property="og:description" content="在iOS开发中，Protocol是一种经常用到的设计模式，苹果的系统框架中也普遍用到了这种方式，比如UITableView中的&amp;lt;UITableViewDelegate&amp;gt;，以及&amp;lt;NSCopying&amp;gt;、&amp;lt;NSObject&amp;gt;这样的协议。我想大家也都自定义过协议，一般都用于回调，或者数据传递。不过，用久了以后，不知道大家是否会有一些困惑：协议只能用于委托代理吗？为什么系">
+<meta property="og:updated_time" content="2017-04-18T06:07:57.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="iOS 之 Protocol 详解">
+<meta name="twitter:description" content="在iOS开发中，Protocol是一种经常用到的设计模式，苹果的系统框架中也普遍用到了这种方式，比如UITableView中的&amp;lt;UITableViewDelegate&amp;gt;，以及&amp;lt;NSCopying&amp;gt;、&amp;lt;NSObject&amp;gt;这样的协议。我想大家也都自定义过协议，一般都用于回调，或者数据传递。不过，用久了以后，不知道大家是否会有一些困惑：协议只能用于委托代理吗？为什么系">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://knowmight.github.io/2016/10/14/iOS-之-Protocol-详解/"/>
+
+
+
+
+
+  <title> iOS 之 Protocol 详解 | TruthSeeker </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">TruthSeeker</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            站点地图
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://knowmight.github.io/2016/10/14/iOS-之-Protocol-详解/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Will Goh">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="TruthSeeker">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                iOS 之 Protocol 详解
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-10-14T14:46:58+08:00">
+                2016-10-14
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>在<code>iOS</code>开发中，<code>Protocol</code>是一种经常用到的设计模式，苹果的系统框架中也普遍用到了这种方式，比如<code>UITableView</code>中的<code>&lt;UITableViewDelegate&gt;</code>，以及<code>&lt;NSCopying&gt;</code>、<code>&lt;NSObject&gt;</code>这样的协议。我想大家也都自定义过协议，一般都用于回调，或者数据传递。不过，用久了以后，不知道大家是否会有一些困惑：协议只能用于委托代理吗？为什么系统中定义了这么多协议？为什么感觉分类和协议好像？系统中又为何会定义这么多分类？被这些问题轰炸后，我不禁又开始想，协议到底是个啥玩意？</p>
+<p>带着这样的目地，我阅读了一些文档书籍，最后整理了以下的内容：</p>
+<ul>
+<li><code>protocol</code>是什么?</li>
+<li><code>protocol</code>里有些啥?</li>
+<li><code>protocol</code>可以写在哪?</li>
+<li><code>protocol</code>里的方法由谁实现，由谁调用?</li>
+<li><code>protocol</code>分类：正式协议和非正式协议？</li>
+<li><code>protocol</code>有哪些作用，能用在哪些地方?</li>
+</ul>
+<hr>
+<h3 id="1-protocol-是什么"><a href="#1-protocol-是什么" class="headerlink" title="1. protocol 是什么?"></a>1. protocol 是什么?</h3><p>iOS 开发文档是这样定义的：(翻译略渣，请见谅)</p>
+<blockquote>
+<p>A protocol declares a programmatic interface that any class may choose to implement. Protocols make it possible for two classes distantly related by inheritance to communicate with each other to accomplish a certain goal. They thus offer an alternative to subclassing. Any class that can provide behavior useful to other classes may declare a programmatic interface for vending that behavior anonymously. Any other class may choose to adopt the protocol and implement one or more of its methods, thereby making use of the behavior. The class that declares a protocol is expected to call the methods in the protocol if they are implemented by the protocol adopter.</p>
+</blockquote>
+<p>协议声明了任何类都能够选择实现的程序接口。协议能够使两个不同继承树上的类相互交流并完成特定的目的，因此它提供了除继承外的另一种选择。任何能够为其他类提供有用行为的类都能够声明接口来匿名的传达这个行为。任何其他类都能够选择遵守这个协议并实现其中的一个或多个方法，从而利用这个行为。如果协议遵守者实现了协议中的方法，那么声明协议的类就能够通过遵守者调用协议中的方法。</p>
+<h3 id="2-protocol-里有些啥"><a href="#2-protocol-里有些啥" class="headerlink" title="2. protocol 里有些啥?"></a>2. protocol 里有些啥?</h3><p>协议中能够声明方法，以及属性。然后问题就来了，不是不能定义成员变量的吗？</p>
+<p><strong>对，的确不能定义成员变量</strong>，但是属性是什么？属性包含了三个东西：成员变量、<code>setter</code>方法、<code>getter</code>方法。在类中定义的属性，当然三者都有，然而协议中定义的属性只有获取和设置方法，没有成员变量，这就要求该协议的遵守者必须自己写出<code>setter</code>和<code>getter</code>方法的实现。但是有一种情况是不需要的，那就是遵守者本来就有这个属性，此时系统会为这个属性自动生成设置获取方法，既然已经实现了，那么遵守者就没必要去实现协议中的这个属性了。</p>
+<p>尽管可以实现“伪属性”，但是，<strong>我们还是应该尽量把属性定义在主接口中，而不应该定义在协议中</strong>。</p>
+<p>还有一点，也是很重要的一点，为什么自定义的协议后面会有这么一个东西<code>&lt;NSObject&gt;</code>?</p>
+<p>协议也能继承。既可以继承自自定义的协议，也可以继承自系统的协议。<br>我们在定义协议的时候，一般都是直接继承自<code>&lt;NSObject&gt;</code>，为什么系统要默认让协议继承自这个协议呢？</p>
+<p>因为这个协议中定义了一些基本的方法，由于我们使用的所有类都继承<code>NSObject</code>这个基类，而这个基类遵守了<code>&lt;NSObject&gt;</code>这个协议，那么也就实现了其中的那些方法，这些方法当然可以由<code>NSObject</code>及其子类对象调用，但是在不知道遵守者类型的时候需要用到<code>id &lt;协议名&gt;</code>这样的指针，这个指针在编译期并不知道自己指向哪个对象，唯一能调用的便是协议中的方法，然而有时候又需要用一些基本的方法，比如要辨别<code>id &lt;协议名&gt;</code>这个指针所指的对象属于哪个类，就要用到<code>-isMemberOf:</code>这个方法，而这个方法是<code>&lt;NSObject&gt;</code>这个协议中的方法之一，所以，我们自定义的协议都需要继承<code>&lt;NSObject&gt;</code>。本段一开始便说道:<code>&lt;NSObject&gt;</code>中的方法在<code>NSObject</code>基类中实现了，那么无需再关心实现了，直接调用<code>&lt;NSObject&gt;</code>中的方法吧。</p>
+<h3 id="3-protocol-可以写在哪？"><a href="#3-protocol-可以写在哪？" class="headerlink" title="3. protocol 可以写在哪？"></a>3. protocol 可以写在哪？</h3><p>写在头文件中，写在实现文件的类扩展中。</p>
+<p>前者：可以当做是给这个类添加了一些外部接口。<br>后者：可以当做是给这个类添加了一些私有接口。</p>
+<ul>
+<li>写在头文件中，类内部自然能通过<code>self</code>调用，外部也可以调用里面的方法，子类可以实现或者重写里面的方法。</li>
+<li>而在类扩展中，内部可以调用，外部不能调用、子类不能重写实现和重写，相当于是私有方法。</li>
+</ul>
+<p>不过，如果子类自身又遵循了这个协议，但并没有实现，那么在运行时，系统会一级级往上查找，直到找到父类的方法实现。也就是说，只要知道苹果的私有方法名，并且确保自己的类是这个私有方法所属类的子类，就可以在子类中通过只声明不实现的方式执行父类中该私有方法的实现。</p>
+<h3 id="4-protocol-里的方法由谁实现，由谁调用"><a href="#4-protocol-里的方法由谁实现，由谁调用" class="headerlink" title="4. protocol 里的方法由谁实现，由谁调用"></a>4. protocol 里的方法由谁实现，由谁调用</h3><p>实现：遵守协议者及其子类</p>
+<p>调用：遵守协议者、其子类、<code>id &lt;协议名&gt;</code></p>
+<h3 id="5-protocol-的分类：正式协议-和-非正式协议（类别）"><a href="#5-protocol-的分类：正式协议-和-非正式协议（类别）" class="headerlink" title="5. protocol 的分类：正式协议 和 非正式协议（类别）"></a>5. protocol 的分类：正式协议 和 非正式协议（类别）</h3><p>iOS  文档是这样定义的:</p>
+<blockquote>
+<p>There are two varieties of protocol, formal and informal:</p>
+<p>A formal protocol declares a list of methods that client classes are expected to implement. Formal protocols have their own declaration, adoption, and type-checking syntax. You can designate methods whose implementation is required or optional with the @required and @optional keywords. Subclasses inherit formal protocols adopted by their ancestors. A formal protocol can also adopt other protocols. Formal protocols are an extension to the Objective-C language.</p>
+<p>An informal protocol is a category on NSObject, which implicitly makes almost all objects adopters of the protocol. (A category is a language feature that enables you to add methods to a class without subclassing it.) Implementation of the methods in an informal protocol is optional. Before invoking a method, the calling object checks to see whether the target object implements it. Until optional protocol methods were introduced in Objective-C 2.0, informal protocols were essential to the way Foundation and AppKit classes implemented delegation. </p>
+</blockquote>
+<ul>
+<li><p>正式协议声明了一系列需要遵守协议者实现的方法。正式协议拥有它们特有的声明，遵守，类型判断的语法。你可以通过<code>@required</code>和<code>@optional</code>关键词来指定哪些方法是必须实现的以及哪些方法选择实现。子类继承父类遵守的协议，正式协议也可以遵守其他协议。</p>
+</li>
+<li><p>非正式协议是基于<code>NSObject</code>的类目，其所有子类都含蓄地遵守了这个协议（类目是一种语言特性，它能够不用继承便为类添加方法）在非正式协议中的方法是可以选择实现的。在调用一个方法之前，调用者要确认目标对象是否实现了方法。在<code>OC 2.0</code>引入可选正式协议方法之前，非正式协议是<code>Foundation</code>和<code>AppKit</code>框架中的类中实现委托的唯一方式。</p>
+</li>
+</ul>
+<p>类目实际上是一种特殊的协议。我们没法通过正式协议为系统的类添加方法，因为我们无法编辑系统的类。当然，我们也可以选择继承的方式，但是，这就会创建一个新的类，并不是特别划算。所以，类目这种方式派上用场了。</p>
+<p>但是为什么系统框架中使用了这么多的类目呢？设计者当初为什么不把类目中的方法写到主接口中？</p>
+<p>原因在于<strong>要将众多的方法打散到各处，要将同一类型功能的接口都封装在一个类目中</strong>。这样做能够减少主接口中的代码量，也便于调试。我们还可以把类中的私有方法全部封装在名为<code>Private</code>的类目中，然后在实现文件中引入这个类目，这样做可以把共有的方法定义在一个类目中，也很容易能够清楚哪些是私有方法。</p>
+<p>协议，尤其是类目，<strong>一定要给类目的名称和方法名添加自己的特有前缀</strong>，这样做既不会和系统的类目冲突，也不会在将自己的代码开源后和其他使用者的类目冲突。</p>
+<h3 id="6-protocol-有哪些作用，用在哪些地方"><a href="#6-protocol-有哪些作用，用在哪些地方" class="headerlink" title="6. protocol 有哪些作用，用在哪些地方"></a>6. protocol 有哪些作用，用在哪些地方</h3><ul>
+<li><p>某一个类需要委托其他类处理某些事件，最具代表性性的便是<code>UITableView</code>的那些代理方法。这些方法其实还是代理的方法，只不过定义的地方可能会在委托者类中，通过调用这些方法，可以：将委托者中的数据传递给代理；将代理的数据传递给委托者；将委托者的事件抛给代理去处理… </p>
+</li>
+<li><p>给某几个特定的类添加统一的接口，这些接口是从这些类中抽象出的共同的行为，这样便可以减少重复的代码。</p>
+</li>
+</ul>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p><strong>协议就是定义公共接口的地方</strong>，只要遵守协议，就等于在头文件中定义了这些方法，只要实现就行了。之所以有这样的设计，是因为要将共同的行为抽象出来：不同的类有不同的作用和特征，这也是面向对象的特点，但是即使千差万别，还是会有某些相似点的，这些相似的地方就可以抽象出来做成协议。但有时候这些共同的部分并不是本身就有的，而是人为的添加的，我们要求这些类具有共同的部分，而不管这些类是多么千差万别。有人会问，为什么不写一个公共的父类呢？子类继承父类，这样就能共有某些方法了？</p>
+<p>当然是有这样的设计的，<code>Foundation</code>框架下类的设计就是这样一层一层写下去的，最具相同性的属性和方法声明的位置绝对更靠前。但是，如果同时需要遵守协议的是来自两个不同继承树上的类呢？难道是找到它们共有的祖先类，然后把方法写在那里面吗？显然这么做是不行的，因为这样会导致两个继承树下的所有子类都可以调用，然而并不是所有子类都需要这些方法，所以还是得要用协议。</p>
+<p>很多人会看到有一个<code>&lt;NSObject&gt;</code>的协议，这个协议和<code>NSObject</code>这个类同名，由<code>NSObject</code>遵守，为什么不把这些方法直接写到<code>NSObject</code>类中呢？因为<code>cocoa</code>框架中的基类不止<code>NSObject</code>一个，还有<code>NSProxy</code>这样的类存在，那么<code>&lt;NSObject&gt;</code>这个协议就很容易明白了，它抽象出了所有基类都需要的方法，为基类提供共有方法。还有一个原因的话，在上文中已经说明了，自定义的类要继承自这个协议，以供匿名对象<code>id&lt;协议名&gt;</code>使用。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/iOS/" rel="tag"># iOS</a>
+          
+            <a href="/tags/Protocol/" rel="tag"># Protocol</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/04/18/iOS runtime 官方文档解析/" rel="next" title="iOS runtime 官方文档解析">
+                <i class="fa fa-chevron-left"></i> iOS runtime 官方文档解析
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.jpeg"
+               alt="Will Goh" />
+          <p class="site-author-name" itemprop="name">Will Goh</p>
+           
+              <p class="site-description motion-element" itemprop="description">here I share my life</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">2</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">1</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">3</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-protocol-是什么"><span class="nav-number">1.</span> <span class="nav-text">1. protocol 是什么?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-protocol-里有些啥"><span class="nav-number">2.</span> <span class="nav-text">2. protocol 里有些啥?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-protocol-可以写在哪？"><span class="nav-number">3.</span> <span class="nav-text">3. protocol 可以写在哪？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-protocol-里的方法由谁实现，由谁调用"><span class="nav-number">4.</span> <span class="nav-text">4. protocol 里的方法由谁实现，由谁调用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-protocol-的分类：正式协议-和-非正式协议（类别）"><span class="nav-number">5.</span> <span class="nav-text">5. protocol 的分类：正式协议 和 非正式协议（类别）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-protocol-有哪些作用，用在哪些地方"><span class="nav-number">6.</span> <span class="nav-text">6. protocol 有哪些作用，用在哪些地方</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number"></span> <span class="nav-text">总结</span></a></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Will Goh</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
